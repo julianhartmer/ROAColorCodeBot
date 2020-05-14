@@ -8,6 +8,8 @@ var createPreview = exports.createPreview = function(name, code) {
 	return skinPath(name, code);
 };
 
+exports.maxSkinsNum = 5;
+
 var skinPath = exports.skinPath = function(charString, code) {
 	return 'data/' + charString + '/skins/' + code + '.png';
 };

@@ -3,6 +3,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+
 using namespace cv;
 using namespace std;
 #define DATA_DIR "data"
@@ -53,9 +54,8 @@ vector<Vec3b> code2colors(const char *code)
         tmp.push_back(char2hex(code[i]) * 16 + char2hex(code[i+1]));
         if (tmp.size() == 3)
         {
-            colors.push_back(Vec3b(tmp[2], tmp[1], tmp[0])); // remeber: color code : rgb, here bgr
+            colors.push_back(Vec3b(tmp[2], tmp[1], tmp[0])); // remember: color code : rgb, here bgr
             tmp.clear();
-            cout << colors[colors.size()-1] << "\n";
         }
         i+=2;
     }
@@ -83,14 +83,11 @@ void createPreview(const char*s, const char *code)
     Mat palettes[colors];
     Mat masks[colors];  // not used atm, may be used in the future for better results
     Mat alpha_mask = imread(string(DATA_DIR) + string("/") + s+string("/")+s+string("_mask.png"), IMREAD_GRAYSCALE);
-    //cout << "loading file " << string(DATA_DIR) + string("/") + s +string("/")+s+string("_mask.png\n");
     Mat fin = image.clone();
 
     for (int i = 0; i < colors; ++i)
     {
-        //cout << (s + string("/") + to_string(i) + string("palette.png")) << "\n";
         palettes[i] = imread(string(DATA_DIR) + string("/") + s + string("/") + to_string(i) + string("palette.png"), IMREAD_COLOR);
-        // masks[i] = imread(s + string("/") + to_string(i) + string("mask.png"), IMREAD_COLOR);
     }
 
     for (int i = 0; i < colors; ++i)
@@ -108,7 +105,6 @@ void createPreview(const char*s, const char *code)
             fin.setTo(finColor, mask);
         }
     }
-    cout << "creating skin "+string(DATA_DIR) + string("/") + string(s)+"/skins/" + string(code) + ".png\n";
     imwrite(string(DATA_DIR) + string("/") + string(s)+"/skins/" + string(code) + ".png", set_alpha_from_mask(fin, alpha_mask));
 }
 
@@ -119,103 +115,67 @@ int main( int argc, char** argv )
         cout << "usage: character colorcode\n";
         exit(1);
     }
-
-    if (!strcmp(argv[1], "absa"))
+    else if (!strcmp(argv[1], "absa"))
     {
         createPreview("absa", argv[2]);
     }
-    if (!strcmp(argv[1], "clairen"))
+    else if (!strcmp(argv[1], "clairen"))
     {
         createPreview("clairen", argv[2]);
     }
-    if (!strcmp(argv[1], "elliana"))
+    else if (!strcmp(argv[1], "elliana"))
     {
         createPreview("elliana", argv[2]);
     }
-    if (!strcmp(argv[1], "etalus"))
+    else if (!strcmp(argv[1], "etalus"))
     {
         createPreview("etalus", argv[2]);
     }
-    if (!strcmp(argv[1], "forsburn"))
+    else if (!strcmp(argv[1], "forsburn"))
     {
         createPreview("forsburn", argv[2]);
     }
-    if (!strcmp(argv[1], "kragg"))
+    else if (!strcmp(argv[1], "kragg"))
     {
         createPreview("kragg", argv[2]);
     }
-    if (!strcmp(argv[1], "maypul"))
+    else if (!strcmp(argv[1], "maypul"))
     {
         createPreview("maypul", argv[2]);
     }
-    if (!strcmp(argv[1], "orcane"))
+    else if (!strcmp(argv[1], "orcane"))
     {
         createPreview("orcane", argv[2]);
     }
-    if (!strcmp(argv[1], "ori"))
+    else if (!strcmp(argv[1], "ori"))
     {
         createPreview("ori", argv[2]);
     }
-    if (!strcmp(argv[1], "ranno"))
+    else if (!strcmp(argv[1], "ranno"))
     {
         createPreview("ranno", argv[2]);
     }
-    if (!strcmp(argv[1], "shovelknight"))
+    else if (!strcmp(argv[1], "shovelknight"))
     {
         createPreview("shovelknight", argv[2]);
     }
-    if (!strcmp(argv[1], "sylvanos"))
+    else if (!strcmp(argv[1], "sylvanos"))
     {
         createPreview("sylvanos", argv[2]);
     }
-    if (!strcmp(argv[1], "wrastor"))
+    else if (!strcmp(argv[1], "wrastor"))
     {
         createPreview("wrastor", argv[2]);
     }
-    if (!strcmp(argv[1], "zetterburn"))
+    else if (!strcmp(argv[1], "zetterburn"))
     {
         createPreview("zetterburn", argv[2]);
     }
-
-    // srand(time(NULL));
-    // Mat image;
-    // Mat mask[7];
-    // image = imread(argv[1], IMREAD_COLOR); // Read the file
-    // Mat fin = image.clone();
-    // int colors = stoi(argv[2]);
-    // Mat palettes[colors];
-    // Vec3b newColor[2] = {Vec3b(rand() % 255,rand() % 255,rand() % 255), Vec3b(rand() % 255,rand() % 255,rand() % 255)}; 
-    // for (int i = 0; i < colors; ++i)
-    // {
-    //     palettes[i] = imread(to_string(i) + "palette.png", IMREAD_COLOR);
-    // }
-
-    // vector<Mat> channel(4);
-
-    // split(image, channel);
+    else
+    {
+        return 1;
+    }
     
-    // vector<cv::Vec3b> subcolors[colors];
-    // for (int i = 0; i < colors; ++i)
-    // {
-    //     Vec3b colorBase = palettes[i].at<Vec3b>(0,0);
-    //     for (int j = 0; j < palettes[i].rows; ++j)
-    //     {
-    //         Vec3b colorBGR = palettes[i].at<Vec3b>(j,0);
-    //         Vec3b hsv_diff = bgr2hsv(colorBase) - bgr2hsv(colorBGR);
-    //         Vec3b finColor = hsv2bgr(bgr2hsv(newColor[i]) - hsv_diff);
-    //         cout << finColor << "\n";
-    //         cout << hsv_diff << "\n";
-    //         cout << colorBGR << "\n";
-    //         cout << colorBase << "\n";
-    //         Mat mask;
 
-    //         inRange(image, colorBGR, colorBGR, mask);
-
-    //         fin.setTo(finColor, mask);
-    //     }
-    // }
-    
-    // imwrite("temp.png", fin);
-    // imwrite("original.png", image);
     return 0;
 }

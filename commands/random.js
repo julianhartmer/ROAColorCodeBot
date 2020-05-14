@@ -20,8 +20,20 @@ module.exports = {
 			data.push('`' + code + '`');
 			filepath = CCLib.createPreview(commandName, code);
 		} else {
-			// TODO detect code or colors
 			data.push('not implemented yet!');
+			// block this feature because it gets the bot killed by discord servers
+
+			// if (args.length == 1 && !isNaN(args[0])) {
+			// 	var iterations = Math.min(CCLib.maxSkinsNum, Math.max(1, args[0]));
+			// 	for (i = 0; i < iterations; ++i)
+			// 	{
+			// 		var code = CCLib.generateColorCode4Char(commandName);
+			// 		filepath = CCLib.createPreview(commandName, code);
+			// 		message.channel.send('`' + code + '`', { split: true, files:[filepath]});
+					
+			// 	}
+			// 	return;
+			// }
 		}
 
 		if (filepath == undefined)
