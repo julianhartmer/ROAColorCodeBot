@@ -5,7 +5,7 @@ module.exports = {
 	name: 'random',
 	description: 'Generate random skin.',
 	aliases: ['rand'],
-	usage: '',
+	usage: `[Optional: Number of color codes (${CCLib.MIN_SKIN_NUM} - ${CCLib.MAX_SKIN_NUM})`,
 	cooldown: 1,
 	execute(message, args) {
 		const data = [];
@@ -18,22 +18,31 @@ module.exports = {
 			var code = CCLib.generateColorCode4Char(commandName);
 			data.push(displayName);
 			data.push('`' + code + '`');
-			filepath = CCLib.createPreview(commandName, code);
+			filepath = CCLib.createPreview(commandName, [code]);
 		} else {
-			data.push('not implemented yet!');
-			// block this feature because it gets the bot killed by discord servers
-
-			// if (args.length == 1 && !isNaN(args[0])) {
-			// 	var iterations = Math.min(CCLib.maxSkinsNum, Math.max(1, args[0]));
-			// 	for (i = 0; i < iterations; ++i)
-			// 	{
-			// 		var code = CCLib.generateColorCode4Char(commandName);
-			// 		filepath = CCLib.createPreview(commandName, code);
-			// 		message.channel.send('`' + code + '`', { split: true, files:[filepath]});
-					
-			// 	}
-			// 	return;
-			// }
+			var codeNum = parseInt(args[0]);
+			if (isNaN(codeNum))
+			{
+				data.push(`specify a number from 1 to 3!`);
+			}
+			else
+			{
+				data.push(displayName);
+				codeNum = Math.max(Math.min(codeNum, CCLib.MAX_SKIN_NUM), CCLib.MIN_SKIN_NUM);
+				var codes = [];
+				
+				for (var i = 0; i < codeNum; ++i)
+				{
+					codes.push(CCLib.generateColorCode4Char(commandName));
+					console.log(`code ${i} is ${codes[i]}`);
+					data.push('`' + codes[i] + '`');
+				}
+				console.log(`codes are ${codes}`);
+				CCLib.createPreview(commandName, codes);
+				filepath = CCLib.skinPath(commandName, codes);
+			}
+			
+			
 		}
 
 		if (filepath == undefined)
