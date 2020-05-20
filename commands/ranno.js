@@ -6,9 +6,9 @@ const displayName = CCLib.commandName2DisplayName[commandName];
 
 module.exports = {
 	name: commandName,
-	description: 'Generate random '+displayName+' skin.',
+	description: 'Generate Color Codes or preview of one Color Code for '+displayName+'.',
 	aliases: CCLib.commandName2Aliases[commandName],
-	usage: '',
+	usage: `[Optional: Number of color codes (${CCLib.MIN_SKIN_NUM} - ${CCLib.MAX_SKIN_NUM})`,
 	cooldown: 1,
 	execute(message, args) {
 		const data = [];
@@ -19,10 +19,41 @@ module.exports = {
 			var code = CCLib.generateColorCode4Char(commandName);
 			data.push(displayName);
 			data.push('`' + code + '`');
-			filepath = CCLib.createPreview(commandName, code);
+			filepath = CCLib.createPreview(commandName, [code]);
 		} else {
-			// TODO detect code or colors
-			data.push('not implemented yet!');
+
+			var codeNum = parseInt(args[0]);
+			if (isNaN(codeNum))
+			{
+				data.push(`Specify a number from ${CCLib.MIN_SKIN_NUM} to ${CCLib.MAX_SKIN_NUM}!`);
+			}
+			else
+			{
+				data.push(displayName);
+				if (codeNum > CCLib.MAX_SKIN_NUM)
+				{
+					codeNum = CCLib.MAX_SKIN_NUM;
+					data.push(`You want too many skins! Here are ${codeNum}, take it or leave it :)`);
+				}
+				if (codeNum < CCLib.MIN_SKIN_NUM)
+				{
+					codeNum = CCLib.MIN_SKIN_NUM;
+					data.push(`You want too few skins! Here is ${codeNum}, take it or leave it :)`);
+				}
+				var codes = [];
+				
+				for (var i = 0; i < codeNum; ++i)
+				{
+					codes.push(CCLib.generateColorCode4Char(commandName));
+					console.log(`code ${i} is ${codes[i]}`);
+					data.push('`' + codes[i] + '`');
+				}
+				console.log(`codes are ${codes}`);
+				CCLib.createPreview(commandName, codes);
+				filepath = CCLib.skinPath(commandName, codes);
+			}
+			
+			
 		}
 
 		if (filepath == undefined)

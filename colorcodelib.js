@@ -1,17 +1,31 @@
 const execSync = require('child_process').execSync;
 
 var previewAppPath = './ImageEngine/build/preview';
+exports.MIN_SKIN_NUM = 1;
+exports.MAX_SKIN_NUM = 4; // limited by fileNameSize
 
-var createPreview = exports.createPreview = function(name, code) {
-	var exec = execSync(previewAppPath + ' ' + name + ' ' + code);
-	console.log(previewAppPath + ' ' + name + ' ' + code +'\n');
-	return skinPath(name, code);
+
+var createPreview = exports.createPreview = function(name, codes) {
+	var previewAppArgs = "";
+	for (i in codes)
+	{
+		console.log(`adding code ${codes[i]}`);
+		previewAppArgs += codes[i] + " ";
+	}
+	console.log(previewAppPath + ' ' + name + ' ' + previewAppArgs +'\n');
+	var exec = execSync(previewAppPath + ' ' + name + ' ' + previewAppArgs);
+	return skinPath(name, codes);
 };
 
 exports.maxSkinsNum = 5;
 
-var skinPath = exports.skinPath = function(charString, code) {
-	return 'data/' + charString + '/skins/' + code + '.png';
+var skinPath = exports.skinPath = function(charString, codes) {
+	var filePath = 'data/' + charString + '/skins/';
+	for (var i = 0; i < codes.length - 1; i++)
+	{
+		filePath  += codes[i] + '+';
+	}
+	return filePath + codes[codes.length - 1] + '.png';
 };
 
 var randomCharacter = exports.randomCharacter = function() {
@@ -136,7 +150,7 @@ var helpMessage = exports.helpMessage = "Commands:\n\
 		\t!cc help                    - display this message\n\
 		\t!cc server                  - get invite link to dev server";
 
-        exports.inviteLink = "Join dev server: https://discord.gg/Fqw5G79";
+        exports.inviteLink = "Join my server: https://discord.gg/qNWckWq";
 
 var errorMessage = exports.errorMessage = "Error! Use '!cc help' for help";
 
@@ -178,9 +192,95 @@ var generateColorCode4Char = exports.generateColorCode4Char = function (characte
 	}
 }
 
+var colorCode2ColorArray = exports.colorCode2ColorArray = function a(code, charID) {
+	const checksumCharsNum = 2
+	var hexCharNum = CharID2ColorNum[charID] * 6; // number of hexChars for r g and b
+	var paddingNum = 2 * (((hexCharNum + checksumCharsNum) / 2) % 2);        // odd hexCharNum -> 00 padding at the end
+	var dashNum    = Math.floor((hexCharNum + paddingNum) / 4);  // number of '-'
 
-var isValidCode = exports.isValidCode = function (code, charID) {
-	var codeLen = CharID2ColorNum[charID]*4+Math.floor(CharID2ColorNum[charID]*4/2);
-	if (code.length != codeLen) return false;
+	console.log('expected length ' + (hexCharNum + dashNum + paddingNum + checksumCharsNum) + ' but got ' + code.length);
+	console.log(`hexCharNum = ${hexCharNum}`);
+	console.log(`dashNum = ${dashNum}`);
+	console.log(`paddingNum = ${paddingNum}`);
+	console.log(`checksumCharNum = ${checksumCharsNum}`);
+	if (code.length < (hexCharNum + dashNum + paddingNum + checksumCharsNum)) return false;
+	if (code.length > (hexCharNum + dashNum + paddingNum + checksumCharsNum))
+	{
+		console.log("HHHERE " +code.substr(0, hexCharNum + dashNum + paddingNum + checksumCharsNum));
+		code = code.substr(0, hexCharNum + dashNum + paddingNum + checksumCharsNum);
+	}
+
+	var hexCharList = [];
+
+	var i = 0;
+	// check for paddding 00:
+	if (paddingNum != 0 && code.substr(code.length - 2, 2) !== "00")
+		return false;
+	while (i < hexCharNum + dashNum + checksumCharsNum)	// omit padding 00
+	{
+		if (0 === ((i+1) % 5) && i != 0) // every 5ft charcter is a dash
+		{
+			if (code[i] !== '-') {
+				console.log(`expected - at position ${i}`);
+				return false;
+			}
+			
+			i++;
+		}
+		// next two hex chars are  r, g or b
+		if (i+1 >= code.length) {
+
+			console.log(`expected 2 hex chars at position ${i}!`);
+			return false;
+		}
+
+		var hexVal = parseInt(code.substr(i, 2), 16);
+		console.log(`code: ${code}`);
+		console.log(`substr: ${code.substr(i, 2)}`);
+		console.log("hexVal: "+hexVal.toString(10));
+		if (isNaN(hexVal)) {
+			console.log('couldnt parse ' + code.substr(i, i+2) + ' to hex');
+			return false;
+		}
+
+		hexCharList.push(parseInt(hexVal));
+		i += 2;
+	}
+
+	var colorArray = [];
+	for (i = 0; i < CharID2ColorNum[charID]; ++i)
+	{
+		var tmp = hexCharList.splice(0, 3);
+		console.log(`spliced ${tmp}`);
+		colorArray.push(tmp); // add one rgb array  to colorArray
+	}
+	var givenCheckSum = hexCharList.splice(0, 3);
+	
+	console.log(colorArray);
+	// checksum is still in hexCharList
+	// TODO
+	var sum = 0;
+	for (var i = 0; i < colorArray.length; i++)
+	{
+		console.log(`i = ${i}`);
+		console.log(`colorArray[i][0] (red) = ${colorArray[i][0]}`);
+		console.log(`colorArray[i][1] (green) = ${colorArray[i][1]}`);
+		console.log(`colorArray[i][2] (blue) = ${colorArray[i][2]}`);
+		sum += (i + 101) * colorArray[i][0];
+		sum += (i + 102) * colorArray[i][1];
+		sum += (i + 103) * colorArray[i][2];
+	}
+	var checksum = sum % 256;
+	console.log(`sum = ${sum}`);
+	console.log(`checksum = ${checksum}`);
+
+	if (givenCheckSum != checksum)
+	{
+		console.log(`expected checksum ${checksum} but got ${givenCheckSum}`);
+		return false;
+	}
+
+
+	return [colorArray, code];
 
 }

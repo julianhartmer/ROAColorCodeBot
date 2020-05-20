@@ -7,6 +7,8 @@
 using namespace cv;
 using namespace std;
 #define DATA_DIR "data"
+#define SKIN_PADDING 5
+#define MERGED_MAX_COL_NUM 2
 
 Vec3b bgr2hsv(Vec3b pixel)
 {
@@ -75,7 +77,7 @@ Mat set_alpha_from_mask(Mat fin, Mat alpha_mask)
     return newImage;
 }
 
-void createPreview(const char*s, const char *code)
+Mat createPreview(const char*s, const char *code)
 {
     vector<Vec3b> newColor = code2colors(code);
     Mat image = imread(string(DATA_DIR) + string("/") + s+string("/base.png"), IMREAD_COLOR); // Read the file
@@ -105,7 +107,70 @@ void createPreview(const char*s, const char *code)
             fin.setTo(finColor, mask);
         }
     }
-    imwrite(string(DATA_DIR) + string("/") + string(s)+"/skins/" + string(code) + ".png", set_alpha_from_mask(fin, alpha_mask));
+    return set_alpha_from_mask(fin, alpha_mask);
+}
+
+void createAndSavePreviews(const char *s, char **codes, int codeNum)
+{
+    Mat merged;
+    string fileName;
+    int i;
+    Mat previews[codeNum];
+    int imageRows = 0, imageCols = 0, mergedRows, mergedCols;
+    int width, height;
+    int col, row;
+    for (i = 0; i < codeNum; i++)
+    {
+        previews[i] = createPreview(s, codes[i]);
+        if (imageCols < MERGED_MAX_COL_NUM)
+        {
+            imageCols++;
+        }
+        if (i % (MERGED_MAX_COL_NUM) == 0)
+        {
+            imageRows++;
+        }
+        
+    }
+    width = previews[0].cols;
+    height = previews[0].rows;
+    cout << "i = "<< i << ", row = " << imageRows << ", col = " << imageCols <<"\n";
+    cout << "width = "<< width << ", height = " << height << "\n";
+    // merge previews
+    mergedRows = height * (imageRows) + (imageRows) * SKIN_PADDING;
+    mergedCols = width * (imageCols) + (imageRows) * SKIN_PADDING;
+    merged = Mat(mergedRows, mergedCols, previews[0].type(), Scalar(0, 0, 0, 0));
+    cout << "merged dimension: rows = " << merged.rows << ", cols = " << merged.cols << "\n";
+    row = 0;
+    col = 0;
+    for (i = 0; i < codeNum; i++)
+    {
+        cout << "i = "<< i << ", row = " << row << ", col = " << col << "\n";
+        previews[i].copyTo(merged(cv::Rect(col, row, width, height)));
+        if (((i + 1) % MERGED_MAX_COL_NUM == 0) && i != 0)
+        {
+            row += height + SKIN_PADDING;
+            col = 0;
+        }
+        else
+        {
+            col += width + SKIN_PADDING;
+            /* code */
+        }
+        
+
+    }
+
+    fileName.append(string(DATA_DIR) + string("/") + string(s)+"/skins/");
+    for (i = 0; i < codeNum; ++i)
+    {
+        fileName.append(string(codes[i]));
+        if (i != codeNum - 1)
+            fileName.append("+");
+    }
+    fileName.append(".png");
+    cout << fileName << '\n';
+    imwrite(fileName, merged);
 }
 
 int main( int argc, char** argv )
@@ -117,59 +182,59 @@ int main( int argc, char** argv )
     }
     else if (!strcmp(argv[1], "absa"))
     {
-        createPreview("absa", argv[2]);
+        createAndSavePreviews("absa", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "clairen"))
     {
-        createPreview("clairen", argv[2]);
+        createAndSavePreviews("clairen", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "elliana"))
     {
-        createPreview("elliana", argv[2]);
+        createAndSavePreviews("elliana", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "etalus"))
     {
-        createPreview("etalus", argv[2]);
+        createAndSavePreviews("etalus", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "forsburn"))
     {
-        createPreview("forsburn", argv[2]);
+        createAndSavePreviews("forsburn", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "kragg"))
     {
-        createPreview("kragg", argv[2]);
+        createAndSavePreviews("kragg", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "maypul"))
     {
-        createPreview("maypul", argv[2]);
+        createAndSavePreviews("maypul", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "orcane"))
     {
-        createPreview("orcane", argv[2]);
+        createAndSavePreviews("orcane", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "ori"))
     {
-        createPreview("ori", argv[2]);
+        createAndSavePreviews("ori", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "ranno"))
     {
-        createPreview("ranno", argv[2]);
+        createAndSavePreviews("ranno", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "shovelknight"))
     {
-        createPreview("shovelknight", argv[2]);
+        createAndSavePreviews("shovelknight", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "sylvanos"))
     {
-        createPreview("sylvanos", argv[2]);
+        createAndSavePreviews("sylvanos", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "wrastor"))
     {
-        createPreview("wrastor", argv[2]);
+        createAndSavePreviews("wrastor", &argv[2], argc - 2);
     }
     else if (!strcmp(argv[1], "zetterburn"))
     {
-        createPreview("zetterburn", argv[2]);
+        createAndSavePreviews("zetterburn", &argv[2], argc - 2);
     }
     else
     {
