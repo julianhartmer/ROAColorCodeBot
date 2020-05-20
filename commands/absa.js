@@ -21,8 +21,7 @@ module.exports = {
 			data.push('`' + code + '`');
 			filepath = CCLib.createPreview(commandName, [code]);
 		} else {
-			// TODO detect code or colors
-			// is args[0] a number?
+
 			var codeNum = parseInt(args[0]);
 			if (isNaN(codeNum))
 			{

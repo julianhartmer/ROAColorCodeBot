@@ -135,9 +135,10 @@ void createAndSavePreviews(const char *s, char **codes, int codeNum)
     width = previews[0].cols;
     height = previews[0].rows;
     cout << "i = "<< i << ", row = " << imageRows << ", col = " << imageCols <<"\n";
+    cout << "width = "<< width << ", height = " << height << "\n";
     // merge previews
-    mergedRows = height * (imageRows) + (imageRows - 1) * SKIN_PADDING;
-    mergedCols = width * (imageCols) + (imageRows - 1) * SKIN_PADDING;
+    mergedRows = height * (imageRows) + (imageRows) * SKIN_PADDING;
+    mergedCols = width * (imageCols) + (imageRows) * SKIN_PADDING;
     merged = Mat(mergedRows, mergedCols, previews[0].type(), Scalar(0, 0, 0, 0));
     cout << "merged dimension: rows = " << merged.rows << ", cols = " << merged.cols << "\n";
     row = 0;

@@ -3,9 +3,9 @@ const CCLib = require('../colorcodelib.js');
 
 module.exports = {
 	name: 'present',
-	description: 'Let the bot present your color code with a name!',
-	aliases: ['check'],
-	usage: '[character name] [color] [Optional Skin Description]',
+	description: 'Show off your cool skin, give it a name! You can even tag the creator!',
+	aliases: ['show'],
+	usage: '[character name] [color code] [Optional Skin Description] (Optional: "by" [creator of skin])',
 	cooldown: 0,
 	execute(message, args) {
 		const data = [];
@@ -20,6 +20,8 @@ module.exports = {
 		// check if 
 		var name = args[0].toLowerCase();
 		var code = args[1].toLowerCase();
+		var author = `${message.author}`;
+		var description = "";
 		
 		const command = commands.get(name) || commands.find(c => c.aliases && c.aliases.includes(name));
 		if (!command) return message.channel.send('that\'s not a valid character name');
@@ -35,10 +37,8 @@ module.exports = {
 		{
 			code = colorArrayAndCode[1];
 			var colorArray = colorArrayAndCode[0];
-			data.push(`Skin by ${message.author} `);
 			CCLib.createPreview(charName, [code]);
 			filepath = CCLib.skinPath(charName, [code]);
-			var description = "";
 			for (i of args.slice(2))
 			{
 				
@@ -46,19 +46,39 @@ module.exports = {
 			}
 			description = description.split("*").join("");
 			description = description.split("\n").join("");
-			description = description.split("@").join("");
 			description = description.split("`").join("");
-			if (description.length > 0)
+			
+			// parse creator:
+			var tmp = description.split(' ');
+			console.log(`tmp = ${tmp}`);
+			console.log(`tmp.length = ${tmp.length}`);
+			if (tmp.length >= 3 && tmp[tmp.length - 3] == 'by' && tmp[tmp.length - 2] != "")
 			{
-				data.push("**" + description + "**")
+				console.log(`tmp[tmp.length - 3] = ${tmp[tmp.length - 3]}`);
+				console.log(`tmp[tmp.length - 2] = ${tmp[tmp.length - 2]}`);
+				author = tmp[tmp.length - 2];
+				console.log(`tmp = ${tmp}`);
+				tmp = tmp.slice(0, tmp.length - 3);
+				console.log(`tmp = ${tmp}`);
+				description = tmp.join(' ');
 			}
-			data.push("``" + code.toUpperCase() + "``");
 		}
 
 		if (filepath == undefined)
 		{
 			message.channel.send(data, { split: true});
 		} else {
+
+			const displayName = CCLib.commandName2DisplayName[CCLib.CharID2FolderName[CCLib.Name2CharID[charName]]];
+			if (description.length > 0)
+			{
+				data.push("**" + description + " " + displayName + "**" +" by " + author)
+			}
+			else
+			{
+				data.push("**" + displayName + "**" +" by " + author)
+			}
+			data.push("``" + code.toUpperCase() + "``");
 			message.channel.send(data, { split: true, files:[filepath]});
 		}
 	},

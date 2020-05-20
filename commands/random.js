@@ -20,15 +20,25 @@ module.exports = {
 			data.push('`' + code + '`');
 			filepath = CCLib.createPreview(commandName, [code]);
 		} else {
+			
 			var codeNum = parseInt(args[0]);
 			if (isNaN(codeNum))
 			{
-				data.push(`specify a number from 1 to 3!`);
+				data.push(`Specify a number from ${CCLib.MIN_SKIN_NUM} to ${CCLib.MAX_SKIN_NUM}!`);
 			}
 			else
 			{
 				data.push(displayName);
-				codeNum = Math.max(Math.min(codeNum, CCLib.MAX_SKIN_NUM), CCLib.MIN_SKIN_NUM);
+				if (codeNum > CCLib.MAX_SKIN_NUM)
+				{
+					codeNum = CCLib.MAX_SKIN_NUM;
+					data.push(`You want too many skins! Here are ${codeNum}, take it or leave it :)`);
+				}
+				if (codeNum < CCLib.MIN_SKIN_NUM)
+				{
+					codeNum = CCLib.MIN_SKIN_NUM;
+					data.push(`You want too few skins! Here is ${codeNum}, take it or leave it :)`);
+				}
 				var codes = [];
 				
 				for (var i = 0; i < codeNum; ++i)
